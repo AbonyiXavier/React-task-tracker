@@ -1,23 +1,23 @@
 import { useState } from "react";
 
 const AddTask = ({ onAdd }) => {
-  const [text, setText] = useState("");
+  const [item, setText] = useState("");
   const [day, setDay] = useState("");
-  const [reminder, setReminder] = useState(false);
+  const [completed, setCompleted] = useState(0);
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (!text) {
+    if (!item) {
       alert("Please add a task");
       return;
     }
 
-    onAdd({ text, day, reminder })
+    onAdd({ item, completed })
 
     setText('')
-    setDay('')
-    setReminder(false)
+    // setDay('')
+    setCompleted(false)
   };
 
   return (
@@ -27,11 +27,11 @@ const AddTask = ({ onAdd }) => {
           <input
             type="text"
             placeholder="Add Task"
-            value={text}
+            value={item}
             onChange={(e) => setText(e.target.value)}
           />
         </div>
-        <div className="form-control">
+        {/* <div className="form-control">
           <label>Day & Time</label>
           <input
             type="text"
@@ -39,14 +39,14 @@ const AddTask = ({ onAdd }) => {
             value={day}
             onChange={(e) => setDay(e.target.value)}
           />
-        </div>
+        </div> */}
         <div className="form-control form-control-check">
-          <label>Set Reminder</label>
+          <label>Set Completed</label>
           <input
             type="checkbox"
-            value={reminder}
-            checked={reminder}
-            onChange={(e) => setReminder(e.currentTarget.checked)}
+            value={completed}
+            checked={completed}
+            onChange={(e) => setCompleted(e.currentTarget.checked)}
           />
         </div>
 

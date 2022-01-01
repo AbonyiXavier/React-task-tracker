@@ -5,48 +5,77 @@ import AddTask from "./components/AddTask";
 
 function App() {
   const [showAddTask, setShowAddTask] = useState(false);
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      text: "Doctors Appointment",
-      day: "Feb 5th at 2:30pm",
-      reminder: true,
-    },
-    {
-      id: 2,
-      text: "Meeting at School",
-      day: "Feb 6th at 1:30pm",
-      reminder: true,
-    },
-    {
-      id: 3,
-      text: "Food Shopping",
-      day: "Feb 5th at 2:30pm",
-      reminder: false,
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
 
+  useEffect(() => {
+    const getTasks = async () => {
+      const tasksFromServer = await fetchTasks();
+      setTasks(tasksFromServer);
+    };
+    getTasks();
+  }, []);
 
+  // fetch tasks
+  const fetchTasks = async () => {
+    const res = await fetch(
+      "https://todolist-nodejs-mysql.herokuapp.com/api/todos"
+    );
+    const data = await res.json();
+
+    return data.results;
+  };
 
   // Add Task
-  const addTask = (task) => {
-    const id = Math.floor(Math.random() * 10000) + 1;
-    const newTask = { id, ...task };
-    setTasks([...tasks, newTask]);
+  const addTask = async (task) => {
+   const res = await fetch("https://todolist-nodejs-mysql.herokuapp.com/api/todo", {
+     method: 'POST',
+     headers: {
+       'Content-type': 'application/json'
+     },
+     body: JSON.stringify(task)
+   })
+  
+   const newTask = await res.json()
+ 
+   setTasks([...tasks, newTask]);
+
   };
 
   // Delete task
-  const deleteTask = (id) => {
+  const deleteTask = async (id) => {
+    await fetch(`https://todolist-nodejs-mysql.herokuapp.com/api/todo/${id}`, {
+      method: 'DELETE'
+    })
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
   // Toggle Reminder
-  const toggleReminder = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, reminder: !task.reminder } : task
-      )
-    );
+  const toggleReminder = async (id) => {
+    const taskToggle = await fetchTasks()
+    for (let i = 0; i < taskToggle.length; i++) {
+      const taskToggleData = taskToggle[i];
+      const taskToggleId = taskToggle[i].id;
+      if (taskToggleId === id) {
+        const updatedTask = { ...taskToggleData, completed: !taskToggleData.completed }
+
+        const res = await fetch(`https://todolist-nodejs-mysql.herokuapp.com/api/todo/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify(updatedTask)
+        })
+        const data = await res.json()
+    
+        setTasks(
+          tasks.map((task) =>
+            task.id === id ? { ...task, completed: data.completed} : task
+          )
+        );
+      }
+      
+    }
+   
   };
   return (
     <div className="container">
